@@ -1,7 +1,9 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     APP_NAME: str = "smart-doc-qa"
     ENV: str = "dev"
 
@@ -16,9 +18,6 @@ class Settings(BaseSettings):
     FAISS_INDEX_DIR: str = "storage/faiss"
 
     MAX_FILE_SIZE_MB: int = 10
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
