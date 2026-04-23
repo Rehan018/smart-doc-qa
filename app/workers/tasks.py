@@ -7,8 +7,11 @@ from app.db.models.job import Job, JobStatus
 from app.db.session import SessionLocal
 from app.repositories.chunk_repository import ChunkRepository
 from app.services.chunking_service import ChunkingService
+from app.services.embedding_service import EmbeddingService
 from app.services.extraction_service import ExtractionService
+from app.services.vector_service import VectorService
 from app.workers.celery_app import celery_app
+
 
 
 @celery_app.task(name="app.workers.tasks.process_document")
@@ -66,6 +69,16 @@ def process_document(document_id: str):
             )
 
         chunk_repo.bulk_create(db_chunks)
+
+        embedding_service = EmbeddingService()
+
+        texts = [chunk.text for chunk in chunks]
+        chunk_ids = [db_chunk.id for db_chunk in db_chunks]
+
+        embeddings = embedding_service.embed_texts(texts)
+
+        vector_service = VectorService(dim=embeddings.shape[1])
+        vector_service.add_embeddings(embeddings, chunk_ids)
 
         document.status = DocumentStatus.READY
         document.error_message = None
