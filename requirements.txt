@@ -3,6 +3,8 @@ uvicorn
 pydantic
 pydantic-settings
 python-dotenv
+
 sqlalchemy
 psycopg2-binary
 alembic
+python-multipart

@@ -6,6 +6,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.db.base import Base
+from app.db import models
 from app.db.session import engine
 
 
