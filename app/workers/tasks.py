@@ -1,9 +1,12 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
+from app.db.models.chunk import Chunk as ChunkModel
 from app.db.models.document import Document, DocumentStatus
 from app.db.models.job import Job, JobStatus
 from app.db.session import SessionLocal
+from app.repositories.chunk_repository import ChunkRepository
+from app.services.chunking_service import ChunkingService
 from app.services.extraction_service import ExtractionService
 from app.workers.celery_app import celery_app
 
@@ -42,6 +45,27 @@ def process_document(document_id: str):
 
         if not extracted.text or len(extracted.text.strip()) < 50:
             raise ValueError("Document contains insufficient readable text.")
+
+        chunking_service = ChunkingService()
+        chunk_repo = ChunkRepository(db)
+
+        chunks = chunking_service.chunk_text(extracted.text)
+
+        if not chunks:
+            raise ValueError("Chunking failed: no chunks generated.")
+
+        db_chunks = []
+
+        for chunk in chunks:
+            db_chunks.append(
+                ChunkModel(
+                    document_id=document.id,
+                    chunk_index=chunk.chunk_index,
+                    text=chunk.text,
+                )
+            )
+
+        chunk_repo.bulk_create(db_chunks)
 
         document.status = DocumentStatus.READY
         document.error_message = None
