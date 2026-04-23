@@ -15,6 +15,7 @@ from app.utils.file_utils import (
     get_file_extension,
     is_allowed_file,
 )
+from app.workers.celery_app import celery_app
 
 
 class DocumentService:
@@ -72,6 +73,11 @@ class DocumentService:
             document_id=document.id,
             status=JobStatus.PENDING,
             error_message=None,
+        )
+
+        celery_app.send_task(
+            "app.workers.tasks.process_document",
+            args=[str(document.id)],
         )
 
         return document
