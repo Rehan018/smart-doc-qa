@@ -11,3 +11,6 @@ python-multipart
 
 celery[redis]
 redis
+
+pypdf
+python-docx

@@ -1,10 +1,10 @@
-import time
 from datetime import datetime, timezone
 from uuid import UUID
 
 from app.db.models.document import Document, DocumentStatus
 from app.db.models.job import Job, JobStatus
 from app.db.session import SessionLocal
+from app.services.extraction_service import ExtractionService
 from app.workers.celery_app import celery_app
 
 
@@ -33,7 +33,15 @@ def process_document(document_id: str):
         job.started_at = datetime.now(timezone.utc)
         db.commit()
 
-        time.sleep(3)
+        extraction_service = ExtractionService()
+
+        extracted = extraction_service.extract(
+            file_path=document.file_path,
+            file_type=document.file_type,
+        )
+
+        if not extracted.text or len(extracted.text.strip()) < 50:
+            raise ValueError("Document contains insufficient readable text.")
 
         document.status = DocumentStatus.READY
         document.error_message = None
