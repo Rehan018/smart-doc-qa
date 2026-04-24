@@ -1,0 +1,42 @@
+x-app-base: &app-base
+  build: .
+  image: smart-doc-qa:local
+  env_file:
+    - .env
+  volumes:
+    - ./storage:/app/storage
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  depends_on:
+    - postgres
+    - redis
+
+services:
+  api:
+    <<: *app-base
+    container_name: smart-doc-qa-api
+    command: ./scripts/start_api.sh
+    ports:
+      - "8000:8000"
+
+  worker:
+    <<: *app-base
+    container_name: smart-doc-qa-worker
+    command: ./scripts/start_worker.sh
+
+  postgres:
+    image: postgres:15
+    container_name: smart-doc-qa-postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: smartdocqa
+    volumes:
+      - smart_doc_qa_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: smart-doc-qa-redis
+
+volumes:
+  smart_doc_qa_postgres_data:
