@@ -28,8 +28,7 @@ def rebuild_faiss_index():
         embeddings = embedding_service.embed_texts(texts)
 
         vector_service = VectorService(dim=embeddings.shape[1])
-        vector_service.index.reset()
-        vector_service.metadata = []
+        vector_service.reset()
         vector_service.add_embeddings(embeddings, chunk_ids)
 
         print(f"Rebuilt FAISS index with {len(chunk_ids)} chunks.")
