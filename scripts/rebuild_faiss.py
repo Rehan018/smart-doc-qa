@@ -11,21 +11,20 @@ from app.services.embedding_service import EmbeddingService
 from app.services.vector_service import VectorService
 
 
-def rebuild():
+def rebuild_faiss_index():
     db = SessionLocal()
 
     try:
-        chunks = db.query(Chunk).order_by(Chunk.created_at).all()
+        chunks = db.query(Chunk).order_by(Chunk.created_at.asc()).all()
 
         if not chunks:
             print("No chunks found. Nothing to rebuild.")
             return
 
-        embedding_service = EmbeddingService()
-
         texts = [chunk.text for chunk in chunks]
         chunk_ids = [chunk.id for chunk in chunks]
 
+        embedding_service = EmbeddingService()
         embeddings = embedding_service.embed_texts(texts)
 
         vector_service = VectorService(dim=embeddings.shape[1])
@@ -39,4 +38,4 @@ def rebuild():
 
 
 if __name__ == "__main__":
-    rebuild()
+    rebuild_faiss_index()

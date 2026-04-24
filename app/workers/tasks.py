@@ -36,11 +36,11 @@ def process_document(document_id: str):
         if not job:
             return {"error": "Job not found"}
 
+        logger.info("Processing document %s", document.id)
         document.status = DocumentStatus.PROCESSING
         job.status = JobStatus.RUNNING
         job.started_at = datetime.now(timezone.utc)
         db.commit()
-        logger.info(f"Processing document: {document.id}")
 
         extraction_service = ExtractionService()
 
@@ -91,7 +91,7 @@ def process_document(document_id: str):
         job.completed_at = datetime.now(timezone.utc)
 
         db.commit()
-        logger.info(f"Document processed successfully: {document.id}")
+        logger.info("Document processed successfully %s", document.id)
 
         return {
             "document_id": str(document.id),
@@ -100,7 +100,7 @@ def process_document(document_id: str):
         }
 
     except Exception as exc:
-        logger.error(f"Processing failed for document {document_id}: {exc}")
+        logger.exception("Processing failed for document %s", document_id)
         db.rollback()
 
         try:

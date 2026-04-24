@@ -235,7 +235,6 @@ The LLM receives only retrieved chunks as context. The prompt instructs it to an
 
 - Add OCR for scanned PDFs
 - Add Alembic migrations instead of direct table creation
-- Add a FAISS rebuild command
 - Add a document deletion API
 - Add authentication and user-level document isolation
 - Add reranking for better retrieval quality
@@ -252,13 +251,19 @@ Full integration coverage still runs best through Docker because the end-to-end 
 
 ### Rebuild FAISS index
 
-If the vector index becomes inconsistent or documents are reprocessed:
+If the FAISS index becomes inconsistent with the chunks stored in PostgreSQL, rebuild it with:
 
 ```bash
 python scripts/rebuild_faiss.py
 ```
 
-This regenerates embeddings from stored chunks and rebuilds the FAISS index.
+Inside Docker:
+
+```bash
+docker compose exec api python scripts/rebuild_faiss.py
+```
+
+This regenerates embeddings from stored chunks and recreates the FAISS index metadata mapping.
 
 ## Debugging
 
