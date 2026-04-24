@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -22,4 +22,11 @@ class DocumentRepository:
             self.db.query(Document)
             .filter(Document.id == document_id)
             .first()
+        )
+
+    def list_by_ids(self, document_ids: List[UUID]) -> List[Document]:
+        return (
+            self.db.query(Document)
+            .filter(Document.id.in_(document_ids))
+            .all()
         )

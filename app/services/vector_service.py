@@ -6,6 +6,12 @@ import numpy as np
 from app.core.config import settings
 
 
+class VectorSearchResult:
+    def __init__(self, chunk_id: str, distance: float):
+        self.chunk_id = chunk_id
+        self.distance = distance
+
+
 class VectorService:
     def __init__(self, dim: int):
         self.dim = dim
@@ -34,12 +40,23 @@ class VectorService:
         self._save()
 
     def search(self, query_embedding, top_k=5):
+        if self.index.ntotal == 0:
+            return []
+
         distances, indices = self.index.search(query_embedding, top_k)
 
         results = []
-        for idx in indices[0]:
+        for distance, idx in zip(distances[0], indices[0]):
+            if idx == -1:
+                continue
+
             if idx < len(self.metadata):
-                results.append(self.metadata[idx])
+                results.append(
+                    VectorSearchResult(
+                        chunk_id=self.metadata[idx],
+                        distance=float(distance),
+                    )
+                )
 
         return results
 

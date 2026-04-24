@@ -39,6 +39,7 @@ def retrieve_chunks(
                 "chunk_id": str(c.chunk_id),
                 "document_id": str(c.document_id),
                 "chunk_index": c.chunk_index,
+                "distance": c.distance,
                 "text": c.text[:200],
             }
             for c in chunks

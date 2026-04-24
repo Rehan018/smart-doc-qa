@@ -57,16 +57,16 @@ def process_document(document_id: str):
         if not chunks:
             raise ValueError("Chunking failed: no chunks generated.")
 
-        db_chunks = []
+        chunk_repo.delete_by_document_id(document.id)
 
-        for chunk in chunks:
-            db_chunks.append(
-                ChunkModel(
-                    document_id=document.id,
-                    chunk_index=chunk.chunk_index,
-                    text=chunk.text,
-                )
+        db_chunks = [
+            ChunkModel(
+                document_id=document.id,
+                chunk_index=chunk.chunk_index,
+                text=chunk.text,
             )
+            for chunk in chunks
+        ]
 
         chunk_repo.bulk_create(db_chunks)
 
