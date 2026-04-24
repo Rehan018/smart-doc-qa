@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -12,6 +13,7 @@ from app.services.extraction_service import ExtractionService
 from app.services.vector_service import VectorService
 from app.workers.celery_app import celery_app
 
+logger = logging.getLogger(__name__)
 
 
 @celery_app.task(name="app.workers.tasks.process_document")
@@ -38,6 +40,7 @@ def process_document(document_id: str):
         job.status = JobStatus.RUNNING
         job.started_at = datetime.now(timezone.utc)
         db.commit()
+        logger.info(f"Processing document: {document.id}")
 
         extraction_service = ExtractionService()
 
@@ -88,6 +91,7 @@ def process_document(document_id: str):
         job.completed_at = datetime.now(timezone.utc)
 
         db.commit()
+        logger.info(f"Document processed successfully: {document.id}")
 
         return {
             "document_id": str(document.id),
@@ -96,6 +100,7 @@ def process_document(document_id: str):
         }
 
     except Exception as exc:
+        logger.error(f"Processing failed for document {document_id}: {exc}")
         db.rollback()
 
         try:

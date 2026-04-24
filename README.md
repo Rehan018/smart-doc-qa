@@ -247,3 +247,49 @@ The LLM receives only retrieved chunks as context. The prompt instructs it to an
 This repository includes lightweight smoke and unit tests for health endpoints, upload validation, extraction, chunking, and stable constants.
 
 Full integration coverage still runs best through Docker because the end-to-end document pipeline depends on PostgreSQL, Redis, Celery, FAISS, and the hosted Ollama-compatible endpoint.
+
+## Maintenance
+
+### Rebuild FAISS index
+
+If the vector index becomes inconsistent or documents are reprocessed:
+
+```bash
+python scripts/rebuild_faiss.py
+```
+
+This regenerates embeddings from stored chunks and rebuilds the FAISS index.
+
+## Debugging
+
+- Check API logs:
+
+```bash
+docker compose logs -f api
+```
+
+- Check worker logs:
+
+```bash
+docker compose logs -f worker
+```
+
+- Verify Redis:
+
+```bash
+docker compose logs redis
+```
+
+- Verify Postgres:
+
+```bash
+docker compose logs postgres
+```
+
+## Notes for Reviewer
+
+- The system is designed to run locally with Docker Compose.
+- The default LLM configuration uses a hosted Ollama-compatible endpoint for reproducibility without local model setup.
+- The LLM layer is pluggable and can be switched to OpenAI through environment variables.
+- Background processing keeps uploads responsive while extraction, chunking, embeddings, and indexing run asynchronously.
+- Retrieval uses chunk overlap and distance filtering to reduce weak matches and lower hallucination risk.
