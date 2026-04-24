@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.db.models.chunk import Chunk
+from app.repositories.chunk_repository import ChunkRepository
 from app.services.embedding_service import EmbeddingService
 from app.services.vector_service import VectorService
 
@@ -20,6 +20,7 @@ class RetrievedChunk:
 class RetrievalService:
     def __init__(self, db: Session):
         self.db = db
+        self.chunk_repo = ChunkRepository(db)
         self.embedding_service = EmbeddingService()
 
     def retrieve(
@@ -46,11 +47,8 @@ class RetrievalService:
 
         chunk_ids = [result.chunk_id for result in filtered_results]
 
-        chunks = (
-            self.db.query(Chunk)
-            .filter(Chunk.id.in_(chunk_ids))
-            .all()
-        )
+        chunk_uuids = [UUID(chunk_id) for chunk_id in chunk_ids]
+        chunks = self.chunk_repo.get_by_ids(chunk_uuids)
 
         if document_ids:
             document_id_set = {str(doc_id) for doc_id in document_ids}

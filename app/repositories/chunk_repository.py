@@ -10,6 +10,13 @@ class ChunkRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_by_ids(self, chunk_ids: List[UUID]) -> List[Chunk]:
+        return (
+            self.db.query(Chunk)
+            .filter(Chunk.id.in_(chunk_ids))
+            .all()
+        )
+
     def bulk_create(self, chunks: List[Chunk]):
         self.db.add_all(chunks)
         self.db.commit()
