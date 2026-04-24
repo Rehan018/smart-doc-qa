@@ -42,7 +42,7 @@ def retrieve_chunks(
                 "text": c.text[:200],
             }
             for c in chunks
-        ]
+        ],
     }
 
 
@@ -55,6 +55,7 @@ def ask_question(
 
     return service.ask(
         question=request.question,
+        conversation_id=request.conversation_id,
         document_ids=request.document_ids,
         top_k=request.top_k,
     )
