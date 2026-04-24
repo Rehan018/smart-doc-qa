@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.schemas.chat import ChatRequest, ChatResponse
+from app.services.chat_service import ChatService
 from app.services.retrieval_service import RetrievalService
 
 router = APIRouter()
@@ -42,3 +44,17 @@ def retrieve_chunks(
             for c in chunks
         ]
     }
+
+
+@router.post("/ask", response_model=ChatResponse)
+def ask_question(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+):
+    service = ChatService(db)
+
+    return service.ask(
+        question=request.question,
+        document_ids=request.document_ids,
+        top_k=request.top_k,
+    )
