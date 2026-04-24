@@ -241,3 +241,9 @@ The LLM receives only retrieved chunks as context. The prompt instructs it to an
 - Add reranking for better retrieval quality
 - Add streaming answers
 - Add automated tests in CI
+
+## Testing Notes
+
+This repository includes lightweight smoke and unit tests for health endpoints, upload validation, extraction, chunking, and stable constants.
+
+Full integration coverage still runs best through Docker because the end-to-end document pipeline depends on PostgreSQL, Redis, Celery, FAISS, and the hosted Ollama-compatible endpoint.

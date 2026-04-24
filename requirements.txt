@@ -20,3 +20,6 @@ faiss-cpu
 numpy
 requests
 openai
+
+pytest
+httpx
